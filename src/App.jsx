@@ -144,6 +144,7 @@ function App() {
                 platform: f.platform,
                 language: f.language,
                 year: f.year,
+                query: f.query?.trim() || undefined,
               })
             }
           />

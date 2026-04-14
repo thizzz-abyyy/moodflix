@@ -140,6 +140,7 @@ export async function fetchMoviesByMood(mood, filters = {}) {
     language: filters.language || undefined,
     releaseYear: filters.year || undefined,
     platform: filters.platform || undefined,
+    query: filters.query?.trim() || undefined,
     mood,
   };
   const data = await internalFetch("/api/recommendations", params);
@@ -172,6 +173,22 @@ export async function fetchHiddenGems() {
   return (data.results || []).slice(0, 12).map((m) => normalizeMovie(m));
 }
 
+export async function fetchTamilSpotlight() {
+  const data = await internalFetch("/api/recommendations", {
+    language: "ta",
+    rating: "6.0",
+  });
+  return (data.results || []).map((m) => normalizeMovie(m));
+}
+
+export async function fetchHollywoodSpotlight() {
+  const data = await internalFetch("/api/recommendations", {
+    language: "en",
+    rating: "7.0",
+  });
+  return (data.results || []).map((m) => normalizeMovie(m));
+}
+
 export async function fetchDailyPick() {
   const data = await internalFetch("/api/daily-pick");
   return normalizeMovie(data);
@@ -200,8 +217,12 @@ export async function fetchSimilar(movieId) {
   return (data.results || []).slice(0, 8).map((m) => normalizeMovie(m));
 }
 
-export async function searchMovies(query) {
-  const data = await internalFetch("/api/recommendations", { query });
+export async function searchMovies(query, language) {
+  const params = {
+    query,
+    language,
+  };
+  const data = await internalFetch("/api/recommendations", params);
   return (data.results || []).slice(0, 8).map((m) => normalizeMovie(m));
 }
 

@@ -61,6 +61,14 @@ async function tmdbFetch(endpoint, params = {}, retries = 3) {
   }
 }
 
+function isTamilMovie(movie) {
+  return (
+    movie.original_language === "ta" ||
+    (movie.title && /[அ-ஹ]/.test(movie.title)) ||
+    (movie.original_title && /[அ-ஹ]/.test(movie.original_title))
+  );
+}
+
 // Fetch multiple pages and combine
 async function tmdbFetchPages(endpoint, params = {}, pages = 2) {
   const results = [];
@@ -194,7 +202,38 @@ app.get("/api/recommendations", async (req, res) => {
 
     if (query) {
       const data = await tmdbFetch("/search/movie", { query, page: 1 });
-      return res.json(data);
+      let results = (data.results || []).slice();
+
+      if (language) {
+        results = results.filter((m) => {
+          if (language === "ta") {
+            return (
+              m.original_language === "ta" ||
+              /[அ-ஹ]/.test(m.title || "") ||
+              /[அ-ஹ]/.test(m.original_title || "")
+            );
+          }
+          return m.original_language === language;
+        });
+      }
+
+      if (rating) {
+        const minRating = parseFloat(rating);
+        if (!Number.isNaN(minRating)) {
+          results = results.filter((m) => m.vote_average >= minRating);
+        }
+      }
+
+      if (!language) {
+        results.sort((a, b) => {
+          const aTamil = isTamilMovie(a) ? 0 : 1;
+          const bTamil = isTamilMovie(b) ? 0 : 1;
+          if (aTamil !== bTamil) return aTamil - bTamil;
+          return (b.vote_average || 0) - (a.vote_average || 0);
+        });
+      }
+
+      return res.json({ results });
     }
 
     const moodGenres = mood ? MOOD_GENRES[mood] || MOOD_GENRES.neutral : [];
