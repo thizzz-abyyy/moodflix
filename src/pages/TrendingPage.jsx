@@ -3,10 +3,9 @@ import {
   fetchTrending,
   fetchTopRated,
   fetchHiddenGems,
-  fetchTamilSpotlight,
-  fetchHollywoodSpotlight,
+  fetchNewTamilReleases,
+  fetchOttHighlights,
 } from "../services/tmdb";
-import { MovieGrid } from "../components/MovieGrid";
 import { Carousel } from "../components/Carousel";
 
 const TABS = [
@@ -21,8 +20,8 @@ export function TrendingPage({ userData, onOpenMovie }) {
   const [loading, setLoading] = useState(true);
   const [tamilMovies, setTamilMovies] = useState([]);
   const [tamilLoading, setTamilLoading] = useState(true);
-  const [hollywoodMovies, setHollywoodMovies] = useState([]);
-  const [hollywoodLoading, setHollywoodLoading] = useState(true);
+  const [ottMovies, setOttMovies] = useState([]);
+  const [ottLoading, setOttLoading] = useState(true);
 
   async function loadTab(tab) {
     setActiveTab(tab);
@@ -41,14 +40,14 @@ export function TrendingPage({ userData, onOpenMovie }) {
 
   useEffect(() => {
     loadTab("trending");
-    fetchTamilSpotlight()
+    fetchNewTamilReleases()
       .then(setTamilMovies)
       .catch(() => setTamilMovies([]))
       .finally(() => setTamilLoading(false));
-    fetchHollywoodSpotlight()
-      .then(setHollywoodMovies)
-      .catch(() => setHollywoodMovies([]))
-      .finally(() => setHollywoodLoading(false));
+    fetchOttHighlights()
+      .then(setOttMovies)
+      .catch(() => setOttMovies([]))
+      .finally(() => setOttLoading(false));
   }, []);
 
   return (
@@ -79,8 +78,10 @@ export function TrendingPage({ userData, onOpenMovie }) {
       <div className="section" style={{ marginTop: 60, position: "relative" }}>
         <div className="section-header">
           <div>
-            <h2 className="section-title">🎬 Tamil Cinema Spotlight</h2>
-            <p className="section-sub">Kollywood's finest — rated & reviewed</p>
+            <h2 className="section-title">🎬 Tamil New Releases</h2>
+            <p className="section-sub">
+              Fresh Tamil films brewed for trend-watchers
+            </p>
           </div>
         </div>
         {tamilLoading ? (
@@ -113,7 +114,7 @@ export function TrendingPage({ userData, onOpenMovie }) {
               textAlign: "center",
             }}
           >
-            No Tamil cinema picks are available right now. Please refresh or try
+            No Tamil releases are available right now. Please refresh or try
             again later.
           </div>
         )}
@@ -122,13 +123,13 @@ export function TrendingPage({ userData, onOpenMovie }) {
       <div className="section" style={{ marginTop: 40, position: "relative" }}>
         <div className="section-header">
           <div>
-            <h2 className="section-title">🎥 Hollywood Highlights</h2>
+            <h2 className="section-title">📺 OTT Premiere Picks</h2>
             <p className="section-sub">
-              Popular English-language films with strong reviews
+              New and trending films already streaming on major platforms
             </p>
           </div>
         </div>
-        {hollywoodLoading ? (
+        {ottLoading ? (
           <div style={{ display: "flex", gap: 16, overflow: "hidden" }}>
             {[...Array(6)].map((_, i) => (
               <div
@@ -143,9 +144,9 @@ export function TrendingPage({ userData, onOpenMovie }) {
               />
             ))}
           </div>
-        ) : hollywoodMovies.length > 0 ? (
+        ) : ottMovies.length > 0 ? (
           <Carousel
-            movies={hollywoodMovies}
+            movies={ottMovies}
             mood={null}
             userData={userData}
             onOpen={onOpenMovie}
@@ -158,7 +159,7 @@ export function TrendingPage({ userData, onOpenMovie }) {
               textAlign: "center",
             }}
           >
-            No Hollywood picks are available right now. Please refresh or try
+            No OTT premiere picks are available right now. Please refresh or try
             again later.
           </div>
         )}
