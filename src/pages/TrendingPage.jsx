@@ -63,7 +63,7 @@ export function TrendingPage({ userData, onOpenMovie }) {
         <p className="recs-subtitle">What the world is watching right now</p>
       </div>
 
-      <div className="tabs">
+      {/* <div className="tabs">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -74,7 +74,7 @@ export function TrendingPage({ userData, onOpenMovie }) {
             {t.label}
           </button>
         ))}
-      </div>
+      </div> */}
 
       <div className="section" style={{ marginTop: 60, position: "relative" }}>
         <div className="section-header">

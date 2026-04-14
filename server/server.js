@@ -275,27 +275,27 @@ app.get("/api/recommendations", async (req, res) => {
 
     let results = [];
 
-    if (!language || language === "en") {
-      const enMovies = await tmdbFetchPages(
-        "/discover/movie",
-        { ...baseParams, with_original_language: "en" },
-        2,
-      );
-      results.push(...enMovies);
-    }
     if (!language || language === "ta") {
       const taMovies = await tmdbFetchPages(
         "/discover/movie",
         { ...baseParams, with_original_language: "ta", "vote_count.gte": 50 },
-        2,
+        3,
       );
       results.push(...taMovies);
+    }
+    if (!language || language === "en") {
+      const enMovies = await tmdbFetchPages(
+        "/discover/movie",
+        { ...baseParams, with_original_language: "en" },
+        3,
+      );
+      results.push(...enMovies);
     }
     if (language && language !== "en" && language !== "ta") {
       const langMovies = await tmdbFetchPages(
         "/discover/movie",
         { ...baseParams, with_original_language: language },
-        2,
+        3,
       );
       results.push(...langMovies);
     }
@@ -308,7 +308,7 @@ app.get("/api/recommendations", async (req, res) => {
       return true;
     });
 
-    res.json({ results: unique.slice(0, 40) });
+    res.json({ results: unique.slice(0, 80) });
   } catch (err) {
     console.error(`[API Error] ${req.url}:`, err.message);
     res.status(500).json({ error: err.message });

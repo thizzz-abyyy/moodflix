@@ -22,6 +22,11 @@ export function HomePage({
   onFaceScanOpen,
   trending,
   topRated,
+  tamilSpotlight,
+  hollywoodSpotlight,
+  newTamilReleases,
+  ottHighlights,
+  moodBoosters,
   userData,
   onOpenMovie,
 }) {
@@ -349,6 +354,112 @@ export function HomePage({
         ) : (
           <Carousel
             movies={topRated}
+            mood={mood}
+            userData={userData}
+            onOpen={onOpenMovie}
+          />
+        )}
+      </div>
+
+      {/* TAMIL SPOTLIGHT */}
+      <div className="section" style={{ position: "relative" }}>
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">🇮🇳 Tamil Spotlight</h2>
+            <p className="section-sub">Fresh Tamil favorites and hidden hits</p>
+          </div>
+        </div>
+        {tamilSpotlight?.length === 0 ? (
+          <SkeletonGrid count={6} />
+        ) : (
+          <Carousel
+            movies={tamilSpotlight}
+            mood={mood}
+            userData={userData}
+            onOpen={onOpenMovie}
+          />
+        )}
+      </div>
+
+      {/* HOLLYWOOD HIGHLIGHTS */}
+      <div className="section" style={{ position: "relative" }}>
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">🎬 Hollywood Highlights</h2>
+            <p className="section-sub">
+              Blockbusters and premium English picks
+            </p>
+          </div>
+        </div>
+        {hollywoodSpotlight?.length === 0 ? (
+          <SkeletonGrid count={6} />
+        ) : (
+          <Carousel
+            movies={hollywoodSpotlight}
+            mood={mood}
+            userData={userData}
+            onOpen={onOpenMovie}
+          />
+        )}
+      </div>
+
+      {/* NEW TAMIL RELEASES */}
+      <div className="section" style={{ position: "relative" }}>
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">🆕 New Tamil Releases</h2>
+            <p className="section-sub">Recent Tamil films you shouldn't miss</p>
+          </div>
+        </div>
+        {newTamilReleases?.length === 0 ? (
+          <SkeletonGrid count={6} />
+        ) : (
+          <Carousel
+            movies={newTamilReleases}
+            mood={mood}
+            userData={userData}
+            onOpen={onOpenMovie}
+          />
+        )}
+      </div>
+
+      {/* OTT HIGHLIGHTS */}
+      <div className="section" style={{ position: "relative" }}>
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">📺 OTT Highlights</h2>
+            <p className="section-sub">
+              Top rated picks available on popular platforms
+            </p>
+          </div>
+        </div>
+        {ottHighlights?.length === 0 ? (
+          <SkeletonGrid count={6} />
+        ) : (
+          <Carousel
+            movies={ottHighlights}
+            mood={mood}
+            userData={userData}
+            onOpen={onOpenMovie}
+          />
+        )}
+      </div>
+
+      {/* MOOD BOOSTERS */}
+      <div className="section" style={{ position: "relative" }}>
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">✨ Mood Boosters</h2>
+            <p className="section-sub">
+              Tamil picks tuned to your current vibe
+            </p>
+          </div>
+        </div>
+        {moodBoosters?.length === 0 ? (
+          <SkeletonGrid count={6} />
+        ) : (
+          <Carousel
+            movies={moodBoosters}
             mood={mood}
             userData={userData}
             onOpen={onOpenMovie}

@@ -18,6 +18,11 @@ import {
   fetchTrending,
   fetchTopRated,
   fetchMoviesByMood,
+  fetchTamilSpotlight,
+  fetchHollywoodSpotlight,
+  fetchNewTamilReleases,
+  fetchOttHighlights,
+  fetchMoodBoosters,
 } from "./services/tmdb";
 import { loadUserData, saveUserData } from "./services/personalization";
 import ParticleBackground from "./components/ParticleBackground";
@@ -30,6 +35,11 @@ function App() {
   const [recLoading, setRecLoading] = useState(false);
   const [trending, setTrending] = useState([]);
   const [topRated, setTopRated] = useState([]);
+  const [tamilSpotlight, setTamilSpotlight] = useState([]);
+  const [hollywoodSpotlight, setHollywoodSpotlight] = useState([]);
+  const [newTamilReleases, setNewTamilReleases] = useState([]);
+  const [ottHighlights, setOttHighlights] = useState([]);
+  const [moodBoosters, setMoodBoosters] = useState([]);
   const [userData, setUserData] = useState(loadUserData());
 
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -48,7 +58,28 @@ function App() {
     fetchTopRated()
       .then(setTopRated)
       .catch(() => {});
+    fetchTamilSpotlight()
+      .then(setTamilSpotlight)
+      .catch(() => {});
+    fetchHollywoodSpotlight()
+      .then(setHollywoodSpotlight)
+      .catch(() => {});
+    fetchNewTamilReleases()
+      .then(setNewTamilReleases)
+      .catch(() => {});
+    fetchOttHighlights()
+      .then(setOttHighlights)
+      .catch(() => {});
+    fetchMoodBoosters(mood || "neutral")
+      .then(setMoodBoosters)
+      .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    fetchMoodBoosters(mood || "neutral")
+      .then(setMoodBoosters)
+      .catch(() => {});
+  }, [mood]);
 
   // Adaptive mood theme
   useEffect(() => {
@@ -127,6 +158,11 @@ function App() {
             onFaceScanOpen={() => setShowFaceScan(true)}
             trending={trending}
             topRated={topRated}
+            tamilSpotlight={tamilSpotlight}
+            hollywoodSpotlight={hollywoodSpotlight}
+            newTamilReleases={newTamilReleases}
+            ottHighlights={ottHighlights}
+            moodBoosters={moodBoosters}
             userData={userData}
             onOpenMovie={handleOpenMovie}
           />

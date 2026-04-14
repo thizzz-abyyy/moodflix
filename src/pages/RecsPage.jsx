@@ -4,7 +4,13 @@ import { Carousel } from "../components/Carousel";
 import { MovieGrid } from "../components/MovieGrid";
 import { SkeletonGrid } from "../components/SkeletonGrid";
 import { AIFeedbackBanner } from "../components/AIFeedbackBanner";
-import { fetchMoodRows, fetchHiddenGems, searchMovies } from "../services/tmdb";
+import {
+  fetchMoodRows,
+  fetchHiddenGems,
+  fetchTamilSpotlight,
+  fetchHollywoodSpotlight,
+  searchMovies,
+} from "../services/tmdb";
 
 const MOOD_EXPLANATION = {
   happy: "Upbeat, feel-good films guaranteed to keep your smile going.",
@@ -36,6 +42,8 @@ export function RecsPage({
   });
   const [moodRows, setMoodRows] = useState(null);
   const [hiddenGems, setHiddenGems] = useState([]);
+  const [tamilSpotlight, setTamilSpotlight] = useState([]);
+  const [hollywoodSpotlight, setHollywoodSpotlight] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [rowsLoading, setRowsLoading] = useState(false);
@@ -53,6 +61,25 @@ export function RecsPage({
         setRowsLoading(false);
       })
       .catch(() => setRowsLoading(false));
+  }, [mood]);
+
+  useEffect(() => {
+    if (!mood) return;
+    let active = true;
+    Promise.all([fetchTamilSpotlight(), fetchHollywoodSpotlight()])
+      .then(([taRows, enRows]) => {
+        if (!active) return;
+        setTamilSpotlight(taRows);
+        setHollywoodSpotlight(enRows);
+      })
+      .catch(() => {
+        if (!active) return;
+        setTamilSpotlight([]);
+        setHollywoodSpotlight([]);
+      });
+    return () => {
+      active = false;
+    };
   }, [mood]);
 
   // Debounced filter update (only for grid mode / manual search)
@@ -348,6 +375,50 @@ export function RecsPage({
             ) : (
               <Carousel
                 movies={moodRows?.trending || []}
+                mood={mood}
+                userData={userData}
+                onOpen={onOpenMovie}
+              />
+            )}
+          </div>
+
+          {/* TAMIL SPOTLIGHT */}
+          <div className="section" style={{ position: "relative" }}>
+            <div className="section-header">
+              <div>
+                <h2 className="section-title">🇮🇳 Tamil Spotlight</h2>
+                <p className="section-sub">
+                  Deep Tamil recommendations for your mood
+                </p>
+              </div>
+            </div>
+            {rowsLoading ? (
+              <SkeletonGrid count={6} />
+            ) : (
+              <Carousel
+                movies={tamilSpotlight}
+                mood={mood}
+                userData={userData}
+                onOpen={onOpenMovie}
+              />
+            )}
+          </div>
+
+          {/* HOLLYWOOD HIGHLIGHTS */}
+          <div className="section" style={{ position: "relative" }}>
+            <div className="section-header">
+              <div>
+                <h2 className="section-title">🎬 Hollywood Highlights</h2>
+                <p className="section-sub">
+                  Premium English hits and favorites
+                </p>
+              </div>
+            </div>
+            {rowsLoading ? (
+              <SkeletonGrid count={6} />
+            ) : (
+              <Carousel
+                movies={hollywoodSpotlight}
                 mood={mood}
                 userData={userData}
                 onOpen={onOpenMovie}

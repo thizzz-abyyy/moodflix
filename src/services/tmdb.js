@@ -144,7 +144,7 @@ export async function fetchMoviesByMood(mood, filters = {}) {
     mood,
   };
   const data = await internalFetch("/api/recommendations", params);
-  return (data.results || []).slice(0, 20).map((m) => normalizeMovie(m));
+  return (data.results || []).slice(0, 60).map((m) => normalizeMovie(m));
 }
 
 // Fetch all Netflix-style rows for a mood in one call
@@ -185,6 +185,33 @@ export async function fetchHollywoodSpotlight() {
   const data = await internalFetch("/api/recommendations", {
     language: "en",
     rating: "7.0",
+  });
+  return (data.results || []).map((m) => normalizeMovie(m));
+}
+
+export async function fetchNewTamilReleases() {
+  const data = await internalFetch("/api/recommendations", {
+    language: "ta",
+    rating: "6.0",
+    releaseYear: "2022",
+  });
+  return (data.results || []).map((m) => normalizeMovie(m));
+}
+
+export async function fetchOttHighlights() {
+  const data = await internalFetch("/api/recommendations", {
+    platform: "8",
+    rating: "6.5",
+    language: "ta",
+  });
+  return (data.results || []).map((m) => normalizeMovie(m));
+}
+
+export async function fetchMoodBoosters(mood) {
+  const data = await internalFetch("/api/recommendations", {
+    mood: mood || "neutral",
+    language: "ta",
+    rating: "6.0",
   });
   return (data.results || []).map((m) => normalizeMovie(m));
 }
