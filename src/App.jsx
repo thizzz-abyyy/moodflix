@@ -1,25 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useParticles } from './hooks/useParticles';
-import { useToast } from './hooks/useToast';
-import { Navbar } from './components/Navbar';
-import { HomePage } from './pages/HomePage';
-import { RecsPage } from './pages/RecsPage';
-import { TrendingPage } from './pages/TrendingPage';
-import { FavoritesPage } from './pages/FavoritesPage';
-import { MovieModal } from './modals/MovieModal';
-import { SmartPickModal } from './modals/SmartPickModal';
-import { GroupModal } from './modals/GroupModal';
-import { SwipeModal } from './modals/SwipeModal';
-import { FaceScanModal } from './modals/FaceScanModal';
-import { Chatbot } from './components/Chatbot';
-import { AIOrb } from './components/AIOrb';
-import { ToastContainer } from './components/ToastContainer';
-import { fetchTrending, fetchTopRated, fetchMoviesByMood } from './services/tmdb';
-import { loadUserData, saveUserData } from './services/personalization';
+import React, { useState, useEffect } from "react";
+import { useParticles } from "./hooks/useParticles";
+import { useToast } from "./hooks/useToast";
+import { Navbar } from "./components/Navbar";
+import { HomePage } from "./pages/HomePage";
+import { RecsPage } from "./pages/RecsPage";
+import { TrendingPage } from "./pages/TrendingPage";
+import { FavoritesPage } from "./pages/FavoritesPage";
+import { MovieModal } from "./modals/MovieModal";
+import { SmartPickModal } from "./modals/SmartPickModal";
+import { GroupModal } from "./modals/GroupModal";
+import { SwipeModal } from "./modals/SwipeModal";
+import { FaceScanModal } from "./modals/FaceScanModal";
+import { Chatbot } from "./components/Chatbot";
+import { AIOrb } from "./components/AIOrb";
+import { ToastContainer } from "./components/ToastContainer";
+import {
+  fetchTrending,
+  fetchTopRated,
+  fetchMoviesByMood,
+} from "./services/tmdb";
+import { loadUserData, saveUserData } from "./services/personalization";
+import ParticleBackground from "./components/ParticleBackground";
 
 function App() {
   const { toasts, push: addToast } = useToast();
-  const [page, setPage] = useState('home');
+  const [page, setPage] = useState("home");
   const [mood, setMood] = useState(null);
   const [recMovies, setRecMovies] = useState([]);
   const [recLoading, setRecLoading] = useState(false);
@@ -37,31 +42,40 @@ function App() {
   useParticles();
 
   useEffect(() => {
-    fetchTrending().then(setTrending).catch(() => {});
-    fetchTopRated().then(setTopRated).catch(() => {});
+    fetchTrending()
+      .then(setTrending)
+      .catch(() => {});
+    fetchTopRated()
+      .then(setTopRated)
+      .catch(() => {});
   }, []);
 
   // Adaptive mood theme
   useEffect(() => {
-    document.body.className = mood ? `mood-${mood}` : 'mood-default';
+    document.body.className = mood ? `mood-${mood}` : "mood-default";
   }, [mood]);
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [page]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
 
   async function handleGetRecs(m, filters = {}) {
     setMood(m);
-    setPage('recommendations');
+    setPage("recommendations");
     setRecLoading(true);
     setRecMovies([]);
     try {
       const movies = await fetchMoviesByMood(m, filters);
       setRecMovies(movies);
       const d = loadUserData();
-      d.moodHistory = [{ mood: m, ts: Date.now() }, ...(d.moodHistory || [])].slice(0, 30);
+      d.moodHistory = [
+        { mood: m, ts: Date.now() },
+        ...(d.moodHistory || []),
+      ].slice(0, 30);
       saveUserData(d);
       setUserData(d);
     } catch (e) {
-      addToast('Failed to load movies. Check your connection.', 'error');
+      addToast("Failed to load movies. Check your connection.", "error");
     } finally {
       setRecLoading(false);
     }
@@ -72,21 +86,23 @@ function App() {
     // Track genre affinity
     const d = loadUserData();
     d.genreAffinity = d.genreAffinity || {};
-    (movie.genreIds || []).forEach(g => { d.genreAffinity[g] = (d.genreAffinity[g] || 0) + 1; });
+    (movie.genreIds || []).forEach((g) => {
+      d.genreAffinity[g] = (d.genreAffinity[g] || 0) + 1;
+    });
     saveUserData(d);
     setUserData(d);
   }
 
   function handleFaceDetected(detectedMood) {
     setMood(detectedMood);
-    addToast(`🙂 Emotion detected: ${detectedMood}`, 'success');
+    addToast(`🙂 Emotion detected: ${detectedMood}`, "success");
     handleGetRecs(detectedMood);
   }
 
   return (
     <>
-      <canvas id="particle-canvas" style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none' }} />
-      
+      <ParticleBackground />
+
       <Navbar
         page={page}
         onNav={setPage}
@@ -98,10 +114,13 @@ function App() {
       />
 
       <div className="page-container">
-        {page === 'home' && (
+        {page === "home" && (
           <HomePage
             mood={mood}
-            onMoodSelect={m => { setMood(m); handleGetRecs(m); }}
+            onMoodSelect={(m) => {
+              setMood(m);
+              handleGetRecs(m);
+            }}
             onNav={setPage}
             onGetRecs={handleGetRecs}
             onSmartPick={() => setShowSmartPick(true)}
@@ -112,25 +131,27 @@ function App() {
             onOpenMovie={handleOpenMovie}
           />
         )}
-        {page === 'recommendations' && (
+        {page === "recommendations" && (
           <RecsPage
             mood={mood}
             movies={recMovies}
             loading={recLoading}
             userData={userData}
             onOpenMovie={handleOpenMovie}
-            onApplyFilters={(m, f) => handleGetRecs(m, {
-              rating: parseFloat(f.rating) || 0,
-              platform: f.platform,
-              language: f.language,
-              year: f.year,
-            })}
+            onApplyFilters={(m, f) =>
+              handleGetRecs(m, {
+                rating: parseFloat(f.rating) || 0,
+                platform: f.platform,
+                language: f.language,
+                year: f.year,
+              })
+            }
           />
         )}
-        {page === 'trending' && (
+        {page === "trending" && (
           <TrendingPage userData={userData} onOpenMovie={handleOpenMovie} />
         )}
-        {page === 'favorites' && (
+        {page === "favorites" && (
           <FavoritesPage
             userData={userData}
             onOpenMovie={handleOpenMovie}
@@ -188,10 +209,10 @@ function App() {
         currentMood={mood}
         setMood={setMood}
         onNav={setPage}
-        onLoadMovies={m => handleGetRecs(m)}
+        onLoadMovies={(m) => handleGetRecs(m)}
         toast={addToast}
       />
-      <AIOrb onClick={() => setChatOpen(o => !o)} />
+      <AIOrb onClick={() => setChatOpen((o) => !o)} />
       <ToastContainer toasts={toasts} />
     </>
   );
