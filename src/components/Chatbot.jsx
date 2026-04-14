@@ -11,6 +11,42 @@ const QUICK_REPLIES = [
   { label: '😴 Something chill', msg: 'I want something relaxing' },
 ];
 
+function buildLocalReply(message, detectedMood, movies, currentMood) {
+  const picks = (movies || []).slice(0, 3);
+  const pickLine = picks.length
+    ? picks.map(m => `🎬 ${m.title}${m.releaseYear ? ` (${m.releaseYear})` : ''}`).join('\n')
+    : '';
+
+  if (/trending|popular|top/i.test(message)) {
+    return `These are hot right now and worth a look:\n${pickLine || '🎬 Fresh trending picks are ready for you.'}\nWant more like these or something mood-based?`;
+  }
+
+  if (/search|find|look for/i.test(message)) {
+    return picks.length
+      ? `I found a few matches for you:\n${pickLine}\nWant me to narrow it down by language or mood?`
+      : "I couldn't find a close match for that title. Try another movie name or tell me your mood.";
+  }
+
+  if (detectedMood) {
+    const moodOpeners = {
+      happy: 'You sound upbeat, so I leaned into fun, feel-good picks.',
+      sad: 'You seem a little low, so I picked warm and comforting movies.',
+      stressed: 'You sound stressed, so I focused on easier, more relaxing watches.',
+      bored: 'Bored mode detected, so I pulled in movies with stronger hooks.',
+      romantic: 'Romantic vibe noted, so I picked softer and more heartfelt films.',
+      anxious: 'You seem anxious, so I went for lighter, calmer choices.',
+      angry: 'That energy deserves something intense and satisfying.',
+      excited: 'You sound hyped, so I pulled in bigger, more energetic picks.',
+    };
+
+    return `${moodOpeners[detectedMood] || `I picked these for your ${detectedMood} mood.`}
+${pickLine || '🎬 I have a few movie ideas ready for you.'}
+Want Tamil picks, English picks, or a mix?`;
+  }
+
+  return `I can help with mood-based picks, trending movies, or title search.${currentMood ? ` Right now I’m using your ${currentMood} mood as the baseline.` : ''} Tell me how you feel or what kind of movie night you want.`;
+}
+
 export function Chatbot({ open, onClose, currentMood, setMood, onLoadMovies, toast }) {
   const [messages, setMessages] = useState([
     { role: 'assistant', text: "Hey! 👋 I'm MoodBot, your AI movie copilot. Tell me how you feel or what you want to watch!", movies: [] }
@@ -61,15 +97,6 @@ export function Chatbot({ open, onClose, currentMood, setMood, onLoadMovies, toa
     setTyping(true);
 
     try {
-      const apiMessages = newHistory.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text }));
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: apiMessages, currentMood }),
-      });
-      const data = await res.json();
-      const responseText = data.content || "Sorry, I had a glitch processing that.";
-
       let realMovies = [];
       const detectedMood = analyzeMood(msg);
       if (/trending|popular|top/i.test(msg)) {
@@ -81,6 +108,8 @@ export function Chatbot({ open, onClose, currentMood, setMood, onLoadMovies, toa
         realMovies = (await fetchMoviesByMood(detectedMood)).slice(0, 4);
         if (detectedMood !== currentMood) { setMood(detectedMood); onLoadMovies(detectedMood); }
       }
+
+      const responseText = buildLocalReply(msg, detectedMood, realMovies, currentMood);
 
       setTyping(false);
       setMessages(p => [...p, { role: 'assistant', text: responseText, movies: realMovies }]);
