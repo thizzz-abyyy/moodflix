@@ -208,12 +208,30 @@ export async function fetchOttHighlights() {
 }
 
 export async function fetchMoodBoosters(mood) {
-  const data = await internalFetch("/api/recommendations", {
-    mood: mood || "neutral",
+  const moodKey = mood || "neutral";
+  const primary = await internalFetch("/api/recommendations", {
+    mood: moodKey,
     language: "ta",
     rating: "6.0",
   });
-  return (data.results || []).map((m) => normalizeMovie(m));
+  const primaryMovies = (primary.results || []).slice();
+
+  if (primaryMovies.length >= 10) {
+    return primaryMovies.map((m) => normalizeMovie(m));
+  }
+
+  const secondary = await internalFetch("/api/recommendations", {
+    mood: moodKey,
+    rating: "6.0",
+  });
+  const combined = [...primaryMovies, ...(secondary.results || [])];
+  const seen = new Set();
+  const unique = combined.filter((m) => {
+    if (seen.has(m.id)) return false;
+    seen.add(m.id);
+    return true;
+  });
+  return unique.slice(0, 14).map((m) => normalizeMovie(m));
 }
 
 export async function fetchDailyPick() {

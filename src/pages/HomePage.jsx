@@ -451,7 +451,7 @@ export function HomePage({
           <div>
             <h2 className="section-title">✨ Mood Boosters</h2>
             <p className="section-sub">
-              Tamil picks tuned to your current vibe
+               Picks tuned to your current vibe
             </p>
           </div>
         </div>
