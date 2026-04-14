@@ -201,11 +201,18 @@ app.get("/api/recommendations", async (req, res) => {
       req.query;
 
     if (query) {
-      const data = await tmdbFetch("/search/movie", { query, page: 1 });
-      let results = (data.results || []).slice();
+      const searchLang =
+        language === "en" ? "en-US" : language === "ta" ? "ta" : undefined;
+      const results = await tmdbFetchPages(
+        "/search/movie",
+        { query, language: searchLang },
+        2,
+      );
+
+      let filtered = results || [];
 
       if (language) {
-        results = results.filter((m) => {
+        filtered = filtered.filter((m) => {
           if (language === "ta") {
             return (
               m.original_language === "ta" ||
@@ -220,12 +227,26 @@ app.get("/api/recommendations", async (req, res) => {
       if (rating) {
         const minRating = parseFloat(rating);
         if (!Number.isNaN(minRating)) {
-          results = results.filter((m) => m.vote_average >= minRating);
+          filtered = filtered.filter((m) => m.vote_average >= minRating);
         }
       }
 
+      const filterGenres = genreIds
+        ? genreIds
+            .split(",")
+            .map((g) => parseInt(g, 10))
+            .filter(Boolean)
+        : [];
+      if (filterGenres.length > 0) {
+        filtered = filtered.filter(
+          (m) =>
+            Array.isArray(m.genre_ids) &&
+            m.genre_ids.some((id) => filterGenres.includes(id)),
+        );
+      }
+
       if (!language) {
-        results.sort((a, b) => {
+        filtered.sort((a, b) => {
           const aTamil = isTamilMovie(a) ? 0 : 1;
           const bTamil = isTamilMovie(b) ? 0 : 1;
           if (aTamil !== bTamil) return aTamil - bTamil;
@@ -233,7 +254,7 @@ app.get("/api/recommendations", async (req, res) => {
         });
       }
 
-      return res.json({ results });
+      return res.json({ results: filtered });
     }
 
     const moodGenres = mood ? MOOD_GENRES[mood] || MOOD_GENRES.neutral : [];

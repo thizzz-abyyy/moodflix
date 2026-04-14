@@ -1742,6 +1742,121 @@ h6 {
   background: rgba(255, 255, 255, 0.15);
   transform: scale(1.1);
 }
+.face-scan-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(20px);
+}
+.face-scan-content {
+  position: relative;
+  width: min(560px, 100%);
+  border-radius: var(--r-2xl);
+  overflow: hidden;
+  background: rgba(10, 10, 18, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 32px 120px rgba(0, 0, 0, 0.5);
+  animation: modalEntrance 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+.face-scan-content h3 {
+  margin: 0;
+  padding: 24px 24px 16px;
+  font-size: 1.1rem;
+  color: #fff;
+}
+.face-ring-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+.face-ring,
+.face-ring.delay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  animation: pulseRing 2.2s ease-in-out infinite;
+}
+.face-ring.delay {
+  animation-delay: 0.4s;
+}
+.face-video {
+  position: absolute;
+  inset: 32px;
+  width: calc(100% - 64px);
+  height: calc(100% - 64px);
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 12px rgba(255, 255, 255, 0.04);
+}
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #9cdbff, transparent);
+  animation: scanSweep 2s ease-in-out infinite;
+}
+.face-status,
+.face-emotion {
+  padding: 16px 24px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.88);
+}
+.face-status {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+.face-emotion {
+  font-size: 1rem;
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+  color: var(--mood-primary);
+}
+.face-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 24px 28px;
+  flex-wrap: wrap;
+}
+@keyframes pulseRing {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.18;
+  }
+}
+@keyframes scanSweep {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(100% - 2px));
+    opacity: 0;
+  }
+}
 .modal-body {
   position: relative;
   z-index: 5;

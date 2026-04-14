@@ -140,8 +140,11 @@ export function RecsPage({
       )}
 
       {/* Search + Filters */}
-      <div className="search-filter-container glass">
-        <div className="search-bar-wrap">
+      <div
+        className="search-filter-container glass"
+        style={{ position: "relative" }}
+      >
+        <div className="search-bar-wrap" style={{ position: "relative" }}>
           <span className="search-icon">🔍</span>
           <input
             id="movie-search-input"
@@ -153,7 +156,78 @@ export function RecsPage({
               updateFilter("query", e.target.value);
               setViewMode("grid");
             }}
+            autoComplete="off"
           />
+          {viewMode === "grid" && filters.query.trim().length > 0 && (
+            <div
+              className="search-suggestions glass"
+              style={{
+                position: "absolute",
+                top: "calc(100% + 12px)",
+                left: 0,
+                right: 0,
+                zIndex: 20,
+                padding: "14px 16px",
+                borderRadius: "18px",
+                boxShadow: "0 24px 64px rgba(0,0,0,0.18)",
+                maxHeight: 300,
+                overflowY: "auto",
+                background: "rgba(10, 10, 20, 0.96)",
+              }}
+            >
+              {suggestionsLoading ? (
+                <div style={{ color: "rgba(255,255,255,0.72)" }}>
+                  Finding movies...
+                </div>
+              ) : suggestions.length > 0 ? (
+                suggestions.map((movie) => (
+                  <button
+                    key={movie.id}
+                    type="button"
+                    onClick={() => {
+                      updateFilter("query", movie.title);
+                      onApplyFilters(mood, { ...filters, query: movie.title });
+                    }}
+                    style={{
+                      width: "100%",
+                      border: "none",
+                      background: "transparent",
+                      color: "inherit",
+                      textAlign: "left",
+                      padding: "10px 0",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                      }}
+                    >
+                      <span style={{ fontWeight: 600 }}>{movie.title}</span>
+                      <span style={{ opacity: 0.6 }}>
+                        {movie.langLabel || movie.language?.toUpperCase()}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        opacity: 0.7,
+                        marginTop: 4,
+                      }}
+                    >
+                      {movie.releaseYear} · {movie.genres || "Movie"}
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div style={{ color: "rgba(255,255,255,0.72)" }}>
+                  No suggestions found for that search.
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className="filter-bar">
           {[
