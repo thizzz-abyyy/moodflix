@@ -146,7 +146,7 @@ async function discoverRecommendations(params = {}) {
       language === "en" ? "en-US" : language === "ta" ? "ta" : undefined;
     let results = await tmdbFetchPages(
       "/search/movie",
-      { query, language: searchLang },
+      { query, language: searchLang, include_adult: "false" },
       2,
     );
 
@@ -218,7 +218,7 @@ async function discoverRecommendations(params = {}) {
           with_original_language: "ta",
           "vote_count.gte": 50,
         },
-        3,
+        1,
       )),
     );
   }
@@ -228,7 +228,7 @@ async function discoverRecommendations(params = {}) {
       ...(await tmdbFetchPages(
         "/discover/movie",
         { ...baseParams, with_original_language: "en" },
-        3,
+        1,
       )),
     );
   }
@@ -238,7 +238,7 @@ async function discoverRecommendations(params = {}) {
       ...(await tmdbFetchPages(
         "/discover/movie",
         { ...baseParams, with_original_language: language },
-        3,
+        1,
       )),
     );
   }
@@ -374,7 +374,9 @@ async function fetchCreditsData(movieId) {
     character: person.character,
     photo: person.profile_path ? `${PROFILE_BASE}${person.profile_path}` : null,
   }));
-  const director = (data.crew || []).find((person) => person.job === "Director");
+  const director = (data.crew || []).find(
+    (person) => person.job === "Director",
+  );
 
   return { cast, director: director ? director.name : null };
 }
@@ -477,7 +479,9 @@ export async function fetchMoviesByMood(mood, filters = {}) {
     query: filters.query?.trim() || undefined,
     mood,
   });
-  return (data.results || []).slice(0, 60).map((movie) => normalizeMovie(movie));
+  return (data.results || [])
+    .slice(0, 60)
+    .map((movie) => normalizeMovie(movie));
 }
 
 export async function fetchMoodRows(mood) {
@@ -493,17 +497,23 @@ export async function fetchMoodRows(mood) {
 
 export async function fetchTrending() {
   const data = await internalFetch("/api/trending");
-  return (data.results || []).slice(0, 12).map((movie) => normalizeMovie(movie));
+  return (data.results || [])
+    .slice(0, 12)
+    .map((movie) => normalizeMovie(movie));
 }
 
 export async function fetchTopRated() {
   const data = await internalFetch("/api/top_rated");
-  return (data.results || []).slice(0, 12).map((movie) => normalizeMovie(movie));
+  return (data.results || [])
+    .slice(0, 12)
+    .map((movie) => normalizeMovie(movie));
 }
 
 export async function fetchHiddenGems() {
   const data = await internalFetch("/api/hidden-gems");
-  return (data.results || []).slice(0, 12).map((movie) => normalizeMovie(movie));
+  return (data.results || [])
+    .slice(0, 12)
+    .map((movie) => normalizeMovie(movie));
 }
 
 export async function fetchTamilSpotlight() {
@@ -621,9 +631,25 @@ export async function analyzeMoodMultiModal({
 
   if (text) {
     const keywords = {
-      happy: ["happy", "joy", "great", "amazing", "wonderful", "laugh", "smile", "fun"],
+      happy: [
+        "happy",
+        "joy",
+        "great",
+        "amazing",
+        "wonderful",
+        "laugh",
+        "smile",
+        "fun",
+      ],
       sad: ["sad", "unhappy", "crying", "cry", "down", "lonely", "heartbreak"],
-      stressed: ["stressed", "stress", "worried", "overwhelmed", "pressure", "tense"],
+      stressed: [
+        "stressed",
+        "stress",
+        "worried",
+        "overwhelmed",
+        "pressure",
+        "tense",
+      ],
       bored: ["bored", "nothing", "dull", "idle", "free", "lazy", "blah"],
       romantic: ["romantic", "love", "crush", "date", "couple"],
       anxious: ["anxious", "anxiety", "nervous", "uneasy", "restless"],
